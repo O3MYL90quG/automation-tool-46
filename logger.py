@@ -1,23 +1,30 @@
-# logger.py
 import logging
 from logging.handlers import RotatingFileHandler
 
-# Configure the logger
-def setup_logger(log_file='app.log', max_bytes=10**6, backup_count=5):
-    # Create a logger
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)  # Set the log level to DEBUG
+# Set up logging configuration
+LOG_FILENAME = 'app.log'
+LOG_MAX_BYTES = 10 * 1024 * 1024  # 10 MB
+LOG_BACKUP_COUNT = 5
 
-    # Create a file handler with rotation
-    handler = RotatingFileHandler(log_file, maxBytes=max_bytes, backupCount=backup_count)
-    handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+# Create a logger
+logger = logging.getLogger('MyLogger')
+logger.setLevel(logging.DEBUG)
 
-    # Add the handler to the logger
-    logger.addHandler(handler)
-    
-    return logger
+# Create a rotating file handler
+handler = RotatingFileHandler(LOG_FILENAME, maxBytes=LOG_MAX_BYTES, backupCount=LOG_BACKUP_COUNT)
+handler.setLevel(logging.DEBUG)
+
+# Create a formatter
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+
+# Add the handler to the logger
+logger.addHandler(handler)
 
 # Example usage
 if __name__ == '__main__':
-    logger = setup_logger()
-    logger.info('Logger has been set up.')  # Log an info message
+    logger.debug('Debug message')
+    logger.info('Info message')
+    logger.warning('Warning message')
+    logger.error('Error message')
+    logger.critical('Critical message')
