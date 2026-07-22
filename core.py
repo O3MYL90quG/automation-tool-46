@@ -1,33 +1,43 @@
-import sys
+import json
+import logging
 
-class InputValidationError(Exception):
-    pass
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 
-class DataProcessor:
-    def __init__(self):
-        self.processed_data = []
+class AutomationTool:
+    def __init__(self, data):
+        self.data = data
 
-    def validate_input(self, user_input):
-        if not isinstance(user_input, str) or not user_input:
-            raise InputValidationError('Input must be a non-empty string.')
-        return user_input.strip()
+    def validate_data(self):
+        if not isinstance(self.data, dict):
+            logging.error('Data must be a dictionary')
+            raise ValueError('Invalid data format. Expected a dictionary.')
+        if 'name' not in self.data or 'value' not in self.data:
+            logging.error('Missing required fields in data dictionary')
+            raise KeyError('Both name and value keys must be present in the data.')
 
-    def process_input(self, user_input):
-        valid_input = self.validate_input(user_input)
-        processed = valid_input.upper()  # Example processing
-        self.processed_data.append(processed)
+    def process_data(self):
+        self.validate_data()
+        name = self.data['name']
+        value = self.data['value']
+        try:
+            result = self.perform_action(name, value)
+            logging.info(f'Data processed successfully: {result}')
+            return result
+        except Exception as e:
+            logging.error(f'Error processing data: {str(e)}')
+            raise
 
-    def main_loop(self):
-        while True:
-            user_input = input('Enter a string (or type "exit" to quit): ')
-            if user_input.lower() == 'exit':
-                break
-            try:
-                self.process_input(user_input)
-                print(f'Processed data: {self.processed_data}')
-            except InputValidationError as e:
-                print(f'Error: {e}')
+    def perform_action(self, name, value):
+        if not isinstance(value, (int, float)):
+            logging.error('Value must be a number')
+            raise TypeError('Value must be a number.')
+        return f'The action on {name} with value {value} was successful.'
 
 if __name__ == '__main__':
-    processor = DataProcessor()
-    processor.main_loop()
+    try:
+        sample_data = {'name': 'Sample', 'value': 10}
+        tool = AutomationTool(sample_data)
+        print(tool.process_data())
+    except Exception as e:
+        logging.critical(f'Failed to run automation tool: {str(e)}')
