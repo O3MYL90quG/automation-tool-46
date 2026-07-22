@@ -1,43 +1,33 @@
-import json
-import logging
+import time
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+class PerformanceOptimizer:
+    def __init__(self, threshold=0.1):
+        self.threshold = threshold
+        self.last_time = time.time()
 
-class AutomationTool:
-    def __init__(self, data):
-        self.data = data
-
-    def validate_data(self):
-        if not isinstance(self.data, dict):
-            logging.error('Data must be a dictionary')
-            raise ValueError('Invalid data format. Expected a dictionary.')
-        if 'name' not in self.data or 'value' not in self.data:
-            logging.error('Missing required fields in data dictionary')
-            raise KeyError('Both name and value keys must be present in the data.')
-
-    def process_data(self):
-        self.validate_data()
-        name = self.data['name']
-        value = self.data['value']
-        try:
-            result = self.perform_action(name, value)
-            logging.info(f'Data processed successfully: {result}')
+    def monitor_performance(self, func):
+        def wrapper(*args, **kwargs):
+            start_time = time.time()
+            result = func(*args, **kwargs)
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            if elapsed_time > self.threshold:
+                print(f"Performance Warning: '{func.__name__}' took {elapsed_time:.4f} seconds")
             return result
-        except Exception as e:
-            logging.error(f'Error processing data: {str(e)}')
-            raise
+        return wrapper
 
-    def perform_action(self, name, value):
-        if not isinstance(value, (int, float)):
-            logging.error('Value must be a number')
-            raise TypeError('Value must be a number.')
-        return f'The action on {name} with value {value} was successful.'
+    @staticmethod
+    def optimize_data_structure(data):
+        if isinstance(data, list) and len(data) > 1000:
+            return set(data)
+        return data
+
+@PerformanceOptimizer().monitor_performance
+def long_running_task(data):
+    time.sleep(0.2)  # Simulated work
+    return data
 
 if __name__ == '__main__':
-    try:
-        sample_data = {'name': 'Sample', 'value': 10}
-        tool = AutomationTool(sample_data)
-        print(tool.process_data())
-    except Exception as e:
-        logging.critical(f'Failed to run automation tool: {str(e)}')
+    result = long_running_task([i for i in range(1500)])
+    optimized_data = PerformanceOptimizer.optimize_data_structure(result)
+    print(optimized_data)
