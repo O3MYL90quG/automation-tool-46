@@ -1,33 +1,26 @@
-import time
+import sys
 
-class PerformanceOptimizer:
-    def __init__(self, threshold=0.1):
-        self.threshold = threshold
-        self.last_time = time.time()
+class InputValidationError(Exception):
+    pass
 
-    def monitor_performance(self, func):
-        def wrapper(*args, **kwargs):
-            start_time = time.time()
-            result = func(*args, **kwargs)
-            end_time = time.time()
-            elapsed_time = end_time - start_time
-            if elapsed_time > self.threshold:
-                print(f"Performance Warning: '{func.__name__}' took {elapsed_time:.4f} seconds")
-            return result
-        return wrapper
+def validate_input(user_input):
+    if not isinstance(user_input, str) or len(user_input.strip()) == 0:
+        raise InputValidationError("Input must be a non-empty string")
 
-    @staticmethod
-    def optimize_data_structure(data):
-        if isinstance(data, list) and len(data) > 1000:
-            return set(data)
-        return data
-
-@PerformanceOptimizer().monitor_performance
-def long_running_task(data):
-    time.sleep(0.2)  # Simulated work
-    return data
+def process_data(user_input):
+    validate_input(user_input)  # Validate input here
+    # Simulate processing the validated input
+    print(f"Processing: {user_input}")
 
 if __name__ == '__main__':
-    result = long_running_task([i for i in range(1500)])
-    optimized_data = PerformanceOptimizer.optimize_data_structure(result)
-    print(optimized_data)
+    while True:
+        try:
+            user_input = input('Enter some data (or type "exit" to quit): ')
+            if user_input.lower() == 'exit':
+                print('Exiting...')
+                sys.exit(0)
+            process_data(user_input)
+        except InputValidationError as e:
+            print(f'Input error: {e}')
+        except Exception as e:
+            print(f'An unexpected error occurred: {e}')
