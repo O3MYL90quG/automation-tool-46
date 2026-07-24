@@ -2,29 +2,29 @@ import json
 import os
 
 DEFAULT_CONFIG = {
-    'setting1': 'value1',
-    'setting2': 'value2',
-    'setting3': 10,
+    'app_name': 'Automation Tool',
+    'version': '1.0',
+    'log_level': 'INFO',
+    'max_retries': 3,
+    'timeout': 30,
 }
 
-class ConfigLoader:
-    def __init__(self, config_file):
-        self.config_file = config_file
-        self.config = self.load_config()
+def load_config(file_path='config.json'):
+    """Load configuration from a JSON file, merging with defaults."""
+    config = DEFAULT_CONFIG.copy()  # Start with default config
+    
+    if os.path.exists(file_path):
+        with open(file_path, 'r') as f:
+            try:
+                user_config = json.load(f)
+                config.update(user_config)  # Merge user config with defaults
+            except json.JSONDecodeError:
+                print('Error decoding JSON from config file.')
+    else:
+        print('Config file does not exist; using defaults.')
+    
+    return config
 
-    def load_config(self):
-        if os.path.exists(self.config_file):
-            with open(self.config_file, 'r') as file:
-                try:
-                    user_config = json.load(file)
-                    return {**DEFAULT_CONFIG, **user_config}
-                except json.JSONDecodeError:
-                    print('Error decoding JSON, using defaults.')
-        return DEFAULT_CONFIG
-
-    def get(self, key, default=None):
-        return self.config.get(key, default)
-
-    def save(self):
-        with open(self.config_file, 'w') as file:
-            json.dump(self.config, file, indent=4)
+if __name__ == '__main__':
+    config = load_config()
+    print(config)
